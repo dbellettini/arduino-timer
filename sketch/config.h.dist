@@ -1,0 +1,7 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+
+constexpr char* ssid = "Max";
+constexpr char* password = "Mustermann";
+
+#endif // CONFIG_H
