@@ -37,7 +37,7 @@ ProgressBar pb(lcd, LCD_COLUMNS, 1);
 
 // Initialize RTC
 constexpr char* timezone = "CET-1CEST,M3.5.0,M10.5.0/3";
-static DS1307 RTC;
+static PCF8563 RTC;
 
 // Global variables for countdown management
 unsigned long countdownMillis;
