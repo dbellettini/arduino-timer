@@ -26,4 +26,4 @@ class ProgressBar:
 
     def __create_custom_characters(self):
         for i in range(6):
-            self.display.create_char(i, create_block_pattern(i))
+            self.display.create_char(i, [create_block_pattern(i)] * 8)

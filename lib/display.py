@@ -100,8 +100,12 @@ class Display:
 
         self.__pulse_enable()
 
-    def create_char(self, char: int, value: int) -> None:
-        pass
+    def create_char(self, location: int, charmap: list[int]) -> None:
+        location &= 0x7
+        self.__write_command(0x40 | (location << 3))
+        for byte in charmap:
+            self.__write_data(byte)
+
 
 
 class LCDCommand:
