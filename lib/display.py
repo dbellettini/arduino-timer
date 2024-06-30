@@ -60,6 +60,7 @@ class Display:
 
     def move_cursor(self, x: int, y: int) -> None:
         self.cursor.move(x, y)
+        self.__write_command(self.cursor.get_command())
 
     def clear(self) -> None:
         self.__write_command(0x01)
@@ -167,13 +168,18 @@ class DisplayMode(LCDCommand):
         self.set_flag(self.FLAG_ENTRY_SHIFT, value)
 
 
-class Cursor(LCDCommand):
+class Cursor:
     BASE_FLAG = 0x80
 
     def __init__(self, columns: int, lines: int):
-        super().__init__(self.BASE_FLAG)
+        self.command = self.BASE_FLAG
         self.columns = columns
         self.lines = lines
 
     def move(self, x: int, y: int) -> None:
-        self.set_flag(0x80 + (y * 0x40) + x, True)
+        assert 0 <= x < self.columns, "Column out of bounds"
+        assert 0 <= y < self.lines, "Line out of bounds"
+        self.command = 0x80 + x + y * 0x40
+
+    def get_command(self) -> int:
+        return self.command
