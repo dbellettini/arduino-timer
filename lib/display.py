@@ -88,66 +88,69 @@ class Display:
         self.__pulse_enable()
 
 
-class FunctionSet:
-    FLAG_BASE = 0x20
+class LCDCommand:
+    def __init__(self, base_flag: int):
+        self.command = base_flag
+
+    def set_flag(self, flag: int, enable: bool) -> None:
+        if enable:
+            self.command |= flag
+        else:
+            self.command &= ~flag
+
+    def get_command(self) -> int:
+        return self.command
+
+
+class FunctionSet(LCDCommand):
     FLAG_8_BIT = 0x10  # DL
     FLAG_2_LINE = 0x08  # N
     FLAG_5x11_DOTS = 0x04  # F
 
     def __init__(self):
-        self.command = self.FLAG_BASE
+        super().__init__(0x20)
 
     def set_bits(self, value: int) -> None:
         assert value in [4, 8], "Must be either 4 or 8 bits"
-        if value == 8:
-            self.command |= self.FLAG_8_BIT  # Set the 8-bit flag
-        else:
-            self.command &= ~self.FLAG_8_BIT  # Clear the 8-bit flag
+        self.set_flag(self.FLAG_8_BIT, value == 8)
 
     def set_display_lines(self, lines: int) -> None:
         assert lines in [1, 2], "Must be either 1 or 2 lines"
-        if lines == 2:
-            self.command |= self.FLAG_2_LINE  # Set the 2-line flag
-        else:
-            self.command &= ~self.FLAG_2_LINE  # Clear the 2-line flag
+        self.set_flag(self.FLAG_2_LINE, lines == 2)
 
     def set_font_type(self, font: str) -> None:
         assert font in ['5x8', '5x11'], "Font must be '5x8' or '5x11'"
-        if font == '5x11':
-            self.command |= self.FLAG_5x11_DOTS  # Set the 5x11 dots flag
-        else:
-            self.command &= ~self.FLAG_5x11_DOTS  # Clear the 5x11 dots flag
-
-    def get_command(self) -> int:
-        return self.command
+        self.set_flag(self.FLAG_5x11_DOTS, font == '5x11')
 
 
-class DisplayControl:
-    FLAG_BASE = 0x08
+class DisplayControl(LCDCommand):
     FLAG_DISPLAY_ON = 0x04  # D
     FLAG_CURSOR_ON = 0x02  # C
     FLAG_BLINK_ON = 0x01  # B
 
     def __init__(self):
-        self.command = self.FLAG_BASE | self.FLAG_DISPLAY_ON  # Display on by default
+        super().__init__(0x08)
+        self.set_flag(self.FLAG_DISPLAY_ON, True)  # Display on by default
 
     def set_display(self, value: bool) -> None:
-        if value:
-            self.command |= self.FLAG_DISPLAY_ON  # Set the display flag
-        else:
-            self.command &= ~self.FLAG_DISPLAY_ON  # Clear the display flag
+        self.set_flag(self.FLAG_DISPLAY_ON, value)
 
     def set_cursor(self, value: bool) -> None:
-        if value:
-            self.command |= self.FLAG_CURSOR_ON  # Set the cursor flag
-        else:
-            self.command &= ~self.FLAG_CURSOR_ON  # Clear the cursor flag
+        self.set_flag(self.FLAG_CURSOR_ON, value)
 
     def set_blink(self, value: bool) -> None:
-        if value:
-            self.command |= self.FLAG_BLINK_ON  # Set the blink flag
-        else:
-            self.command &= ~self.FLAG_BLINK_ON  # Clear the blink flag
+        self.set_flag(self.FLAG_BLINK_ON, value)
 
-    def get_command(self) -> int:
-        return self.command
+
+class DisplayMode(LCDCommand):
+    FLAG_ENTRY_LEFT = 0x02  # I/D
+    FLAG_ENTRY_SHIFT = 0x01  # S
+
+    def __init__(self):
+        super().__init__(0x04)
+
+    def set_direction(self, value: bool) -> None:
+        self.set_flag(self.FLAG_ENTRY_LEFT, value)
+
+    def set_shift(self, value: bool) -> None:
+        self.set_flag(self.FLAG_ENTRY_SHIFT, value)
