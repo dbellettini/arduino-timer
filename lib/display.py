@@ -18,10 +18,10 @@ class Display:
         self.function_set.set_font_type('5x8')
         self.__write_command(self.function_set.get_command())
 
-    def prova(self) -> None:
+    def test_sentence(self) -> None:
         self.__write_command(0x01)
         self.__write_command(0x02)
-        self.__write_data(int('A'))
+        self.__write_data(ord('A'))
 
     def __write_command(self, value: int) -> None:
         self.rs.value(0)
