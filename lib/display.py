@@ -13,6 +13,7 @@ class Display:
         self.function_set = FunctionSet()
         self.function_set.set_bits(self.data_len)
         self.display_control = DisplayControl()
+        self.display_mode = DisplayMode()
 
     def begin(self, columns: int, lines: int) -> None:
         sleep(0.15)
@@ -42,6 +43,7 @@ class Display:
 
         self.__write_command(c)
         self.__write_command(self.display_control.get_command())
+        self.__write_command(self.display_mode.get_command())
 
     def test_sentence(self) -> None:
         self.clear()
@@ -130,7 +132,7 @@ class DisplayControl(LCDCommand):
 
     def __init__(self):
         super().__init__(0x08)
-        self.set_flag(self.FLAG_DISPLAY_ON, True)  # Display on by default
+        self.set_display(True)
 
     def set_display(self, value: bool) -> None:
         self.set_flag(self.FLAG_DISPLAY_ON, value)
@@ -148,6 +150,8 @@ class DisplayMode(LCDCommand):
 
     def __init__(self):
         super().__init__(0x04)
+        self.set_direction(True)
+        self.set_shift(False)
 
     def set_direction(self, value: bool) -> None:
         self.set_flag(self.FLAG_ENTRY_LEFT, value)
