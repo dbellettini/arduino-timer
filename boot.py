@@ -7,12 +7,11 @@ from display import Display
 from machine import Pin
 from machine import RTC
 from progressbar import ProgressBar
+from pomotimer import PomoTimer
 
 import config
 
 b = Buzzer(Pin(21, Pin.OUT))
-b.pulse(.1)
-
 d = Display(Pin(18, Pin.OUT), Pin(17, Pin.OUT),
             [Pin(10, Pin.OUT), Pin(9, Pin.OUT), Pin(8, Pin.OUT), Pin(5, Pin.OUT)])
 
@@ -21,7 +20,7 @@ d.test_sentence()
 
 p = ProgressBar(d, 16, 1)
 p.begin()
-p.display_progress(0.5)
+pomo = PomoTimer(d, p, b, RTC())
 
 
 # Configure and connect to the Wi-Fi network
@@ -66,3 +65,5 @@ def format_date(tm: tuple) -> str:
 connect_wifi()
 sync_time()
 print_current_time()
+
+pomo.begin()
