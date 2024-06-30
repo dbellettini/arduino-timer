@@ -58,6 +58,9 @@ class Display:
         for char in text.encode('ascii'):
             self.__write_data(char)
 
+    def print_char(self, char: int):
+        self.__write_data(char)
+
     def move_cursor(self, x: int, y: int) -> None:
         self.cursor.move(x, y)
         self.__write_command(self.cursor.get_command())
@@ -96,6 +99,9 @@ class Display:
             pin.value((data >> i) & 0x01)
 
         self.__pulse_enable()
+
+    def create_char(self, char: int, value: int) -> None:
+        pass
 
 
 class LCDCommand:
