@@ -107,7 +107,6 @@ class Display:
             self.__write_data(byte)
 
 
-
 class LCDCommand:
     def __init__(self, base_flag: int):
         self.command = base_flag
