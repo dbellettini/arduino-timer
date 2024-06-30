@@ -55,8 +55,11 @@ def sync_time():
 def print_current_time():
     rtc = RTC()
     tm = rtc.datetime()
-    print('Current Date and Time: {:04d}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}'.format(tm[0], tm[1], tm[2], tm[4], tm[5],
-                                                                                    tm[6]))
+    print('Current Date and Time: ' + format_date(tm))
+
+
+def format_date(tm: tuple) -> str:
+    return '{:04d}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}'.format(tm[0], tm[1], tm[2], tm[4], tm[5], tm[6])
 
 
 # Example usage
