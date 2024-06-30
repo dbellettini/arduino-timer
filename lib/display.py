@@ -4,6 +4,7 @@ from time import sleep
 
 class Display:
     def __init__(self, rs: Pin, enable: Pin, data: list[Pin]):
+        self.cursor = None
         self.rs = rs
         self.enable = enable
         self.data = data
@@ -16,6 +17,7 @@ class Display:
         self.display_mode = DisplayMode()
 
     def begin(self, columns: int, lines: int) -> None:
+        self.cursor = Cursor(columns, lines)
         sleep(0.15)
         self.rs.init(Pin.OUT)
         self.enable.init(Pin.OUT)
@@ -49,10 +51,15 @@ class Display:
         self.clear()
         self.home()
         self.print("Hello, World!")
+        self.move_cursor(0, 1)
+        self.print("This is a test")
 
     def print(self, text: str) -> None:
         for char in text.encode('ascii'):
             self.__write_data(char)
+
+    def move_cursor(self, x: int, y: int) -> None:
+        self.cursor.move(x, y)
 
     def clear(self) -> None:
         self.__write_command(0x01)
@@ -158,3 +165,15 @@ class DisplayMode(LCDCommand):
 
     def set_shift(self, value: bool) -> None:
         self.set_flag(self.FLAG_ENTRY_SHIFT, value)
+
+
+class Cursor(LCDCommand):
+    BASE_FLAG = 0x80
+
+    def __init__(self, columns: int, lines: int):
+        super().__init__(self.BASE_FLAG)
+        self.columns = columns
+        self.lines = lines
+
+    def move(self, x: int, y: int) -> None:
+        self.set_flag(0x80 + (y * 0x40) + x, True)
