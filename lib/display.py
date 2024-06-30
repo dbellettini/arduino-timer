@@ -21,7 +21,11 @@ class Display:
     def test_sentence(self) -> None:
         self.__write_command(0x01)
         self.__write_command(0x02)
-        self.__write_data(ord('A'))
+        self.print("Hello, World!")
+
+    def print(self, text: str) -> None:
+        for char in text.encode('ascii'):
+            self.__write_data(char)
 
     def __write_command(self, value: int) -> None:
         self.rs.value(0)
