@@ -15,7 +15,7 @@ class Display:
 
     def begin(self, columns: int, lines: int) -> None:
         self.function_set.set_display_lines(lines)
-        self.function_set.set_font('5x8')
+        self.function_set.set_font_type('5x8')
         self.__write_command(self.function_set.get_command())
 
     def prova(self) -> None:
