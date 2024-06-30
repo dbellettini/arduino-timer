@@ -12,20 +12,53 @@ class Display:
         self.mask = 0xFF >> 8 - len(data)
         self.function_set = FunctionSet()
         self.function_set.set_bits(self.data_len)
+        self.display_control = DisplayControl()
 
     def begin(self, columns: int, lines: int) -> None:
+        sleep(0.15)
+        self.rs.init(Pin.OUT)
+        self.enable.init(Pin.OUT)
+        self.rs.value(0)
+        self.enable.value(0)
+
         self.function_set.set_display_lines(lines)
         self.function_set.set_font_type('5x8')
-        self.__write_command(self.function_set.get_command())
+
+        c = self.function_set.get_command()
+        if self.data_len == 4:
+            self.__write_bits(0x03)
+            sleep(0.0045)
+            self.__write_bits(0x03)
+            sleep(0.0045)
+            self.__write_bits(0x03)
+            sleep(0.00015)
+            self.__write_bits(0x02)
+        else:
+            self.__write_command(c)
+            sleep(0.0045)
+            self.__write_command(c)
+            sleep(0.00015)
+            self.__write_command(c)
+
+        self.__write_command(c)
+        self.__write_command(self.display_control.get_command())
 
     def test_sentence(self) -> None:
-        self.__write_command(0x01)
-        self.__write_command(0x02)
+        self.clear()
+        self.home()
         self.print("Hello, World!")
 
     def print(self, text: str) -> None:
         for char in text.encode('ascii'):
             self.__write_data(char)
+
+    def clear(self) -> None:
+        self.__write_command(0x01)
+        sleep(0.002)
+
+    def home(self):
+        self.__write_command(0x02)
+        sleep(0.002)
 
     def __write_command(self, value: int) -> None:
         self.rs.value(0)
@@ -84,6 +117,37 @@ class FunctionSet:
             self.command |= self.FLAG_5x11_DOTS  # Set the 5x11 dots flag
         else:
             self.command &= ~self.FLAG_5x11_DOTS  # Clear the 5x11 dots flag
+
+    def get_command(self) -> int:
+        return self.command
+
+
+class DisplayControl:
+    FLAG_BASE = 0x08
+    FLAG_DISPLAY_ON = 0x04  # D
+    FLAG_CURSOR_ON = 0x02  # C
+    FLAG_BLINK_ON = 0x01  # B
+
+    def __init__(self):
+        self.command = self.FLAG_BASE | self.FLAG_DISPLAY_ON  # Display on by default
+
+    def set_display(self, value: bool) -> None:
+        if value:
+            self.command |= self.FLAG_DISPLAY_ON  # Set the display flag
+        else:
+            self.command &= ~self.FLAG_DISPLAY_ON  # Clear the display flag
+
+    def set_cursor(self, value: bool) -> None:
+        if value:
+            self.command |= self.FLAG_CURSOR_ON  # Set the cursor flag
+        else:
+            self.command &= ~self.FLAG_CURSOR_ON  # Clear the cursor flag
+
+    def set_blink(self, value: bool) -> None:
+        if value:
+            self.command |= self.FLAG_BLINK_ON  # Set the blink flag
+        else:
+            self.command &= ~self.FLAG_BLINK_ON  # Clear the blink flag
 
     def get_command(self) -> int:
         return self.command
